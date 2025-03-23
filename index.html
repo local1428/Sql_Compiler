@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Query Test</title>
+</head>
+<body>
+  <h1>Test SQL Queries</h1>
+  
+  <textarea id="sql-query" rows="5" cols="50" placeholder="Enter SQL query"></textarea><br><br>
+  <button id="submit-btn">Submit</button>
+  <div id="output"></div>
+  <div id="table-container"></div>
+
+  <script>
+    document.getElementById('submit-btn').addEventListener('click', () => {
+      const query = document.getElementById('sql-query').value;
+
+      // Send the query to the backend
+      fetch('http://localhost:3000/check-query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query: query })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          // Display the message in the output div
+          document.getElementById('output').innerHTML = `Success: ${data.message}`;
+          
+          // Call function to render results as a table
+          renderTable(data.result);
+        } else {
+          document.getElementById('output').innerHTML = `Error: ${data.error}`;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('output').innerHTML = `Server Error: ${error.message}`;
+      });
+    });
+
+    // Function to render query results as an HTML table
+    function renderTable(data) {
+      // Check if data is empty
+      if (!data || data.length === 0) {
+        document.getElementById('table-container').innerHTML = "No results found";
+        return;
+      }
+
+      // Create the table and add column headers
+      let table = '<table border="1" cellpadding="10" cellspacing="0"><thead><tr>';
+      Object.keys(data[0]).forEach(key => {
+        table += `<th>${key}</th>`;  // Add header for each field
+      });
+      table += '</tr></thead><tbody>';
+
+      // Add data rows to the table
+      data.forEach(row => {
+        table += '<tr>';
+        Object.values(row).forEach(value => {
+          table += `<td>${value}</td>`;  // Add each value in the row
+        });
+        table += '</tr>';
+      });
+
+      table += '</tbody></table>';
+      document.getElementById('table-container').innerHTML = table;  // Add table to the page
+    }
+  </script>
+</body>
+</html>
