@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Compiler</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #212529;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+        .editor {
+            width: 95%;
+            background-color: #ffffff;
+            padding: 10px;
+            color: #212529;
+            border-bottom: 2px solid #ccc;
+            flex: 1;
+            margin: 0 auto;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            background: #ffffff;
+            color: #212529;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 16px;
+            resize: none;
+        }
+        .output {
+            width: 95%;
+            padding: 10px;
+            background-color: #ffffff;
+            color: #212529;
+            flex: 2;
+            overflow-y: auto;
+            margin: 0 auto;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            color: #212529;
+            border: 1px solid #ccc;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        button {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 5px;
+            width: 100px;
+            display: block;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="editor">
+        <h2>SQL Compiler</h2>
+        <textarea id="sqlCode" placeholder="-- Write your SQL code here"></textarea>
+        <button onclick="executeSQL()">Run</button>
+    </div>
+    <div class="output">
+        <h2>Output</h2>
+        <div id="outputBox">Results will be displayed here</div>
+    </div>
+    
+    <script>
+        async function executeSQL() {
+            let sqlCode = document.getElementById("sqlCode").value;
+            document.getElementById("outputBox").innerHTML = "Executing SQL...";
+            
+            try {
+                let response = await fetch("/run-sql", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: sqlCode })
+                });
+                
+                let result = await response.json();
+                
+                if (response.ok) {
+                    displayTable(result.data);
+                } else {
+                    document.getElementById("outputBox").innerText = "Error: " + result.error;
+                }
+            } catch (err) {
+                document.getElementById("outputBox").innerText = "Request failed: " + err.message;
+            }
+        }
+        
+        function displayTable(data) {
+            if (!data || data.length === 0) {
+                document.getElementById("outputBox").innerText = "No results found";
+                return;
+            }
+            let table = "<table><tr>";
+            
+            // Create table headers
+            Object.keys(data[0]).forEach(key => {
+                table += `<th>${key}</th>`;
+            });
+            table += "</tr>";
+            
+            // Populate table rows
+            data.forEach(row => {
+                table += "<tr>";
+                Object.values(row).forEach(value => {
+                    table += `<td>${value}</td>`;
+                });
+                table += "</tr>";
+            });
+            table += "</table>";
+            
+            document.getElementById("outputBox").innerHTML = table;
+        }
+    </script>
+</body>
+</html>
