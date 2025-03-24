@@ -10,7 +10,7 @@ app.use(express.static('public'));  // Serve static files like HTML and CSS
 const config = {
   user: "SA",
   password: "Sql@112233",
-  server: "127.0.0.1",
+  server: "localhost",
   database: "SSJ",
   options: {
     encrypt: true,
