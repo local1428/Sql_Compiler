@@ -8,10 +8,10 @@ app.use(express.static('public'));  // Serve static files like HTML and CSS
 
 // MSSQL Database configuration
 const config = {
-  user: 'SA',
-  password: 'Sql@112233',
-  server: 'localhost',
-  database: 'SSJ',
+  user: "SA",
+  password: "Sql@112233",
+  server: "localhost",
+  database: "SSJ",
   options: {
     encrypt: true,
     trustServerCertificate: true,
